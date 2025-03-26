@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faucet App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px 15px;
+            background: green;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+        input, select {
+            width: 90%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .ad-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- User Balance Display -->
+    <div class="section">
+        <h2>Your Balance</h2>
+        <h3 id="balance">0 Points</h3>
+    </div>
+
+    <!-- Faucet Section -->
+    <div class="section">
+        <h2>Claim Faucet</h2>
+        <p>Claim 500 points every 10 seconds.</p>
+        <button id="claim-btn" onclick="claimFaucet()">Claim</button>
+        <p id="refresh-msg" style="color: red; display: none;">Refresh the page to claim again.</p>
+    </div>
+
+    <!-- Withdrawal Section -->
+    <div class="section">
+        <h2>Withdraw Funds</h2>
+
+        <!-- Bank Withdrawal -->
+        <h3>Withdraw to Bank</h3>
+        <input type="text" id="bank" placeholder="Bank Name">
+        <input type="text" id="accountName" placeholder="Account Name">
+        <input type="text" id="accountNumber" placeholder="Account Number">
+        <input type="number" id="withdrawAmountBank" placeholder="Amount in Points">
+        <button onclick="withdrawBank()">Withdraw to Bank</button>
+
+        <!-- Crypto Withdrawal -->
+        <h3>Withdraw to Crypto Wallet</h3>
+        <input type="text" id="walletName" placeholder="Wallet Name (Trust Wallet, Binance, etc.)">
+        <input type="text" id="cryptoAddress" placeholder="Crypto Address">
+        <input type="text" id="cryptoCoin" placeholder="Crypto Coin (Bitcoin, Dogecoin, etc.)">
+        <input type="number" id="withdrawAmountCrypto" placeholder="Amount in Points">
+        <button onclick="withdrawCrypto()">Withdraw to Crypto</button>
+    </div>
+
+    <!-- Withdrawal History -->
+    <div class="section">
+        <h2>Withdrawal History</h2>
+        <ul id="withdrawal-history"></ul>
+    </div>
+
+    <!-- Ad Unit -->
+    <div class="ad-container">
+        <div id="frame" style="width: 728px;">
+            <iframe data-aa='2387565' src='//ad.a-ads.com/2387565?size=728x90' style='width:728px; height:90px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
+            <a style="display: block; text-align: right; font-size: 12px" id="frame-link" href="https://aads.com/campaigns/new/?source_id=2387565&source_type=ad_unit&partner=2387565">Advertise here</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    let balance = localStorage.getItem("balance") ? parseInt(localStorage.getItem("balance")) : 0;
+    document.getElementById("balance").innerText = balance.toLocaleString() + " Points";
+
+    function claimFaucet() {
+        document.getElementById("claim-btn").disabled = true;
+        balance += 500;
+        localStorage.setItem("balance", balance);
+        document.getElementById("balance").innerText = balance.toLocaleString() + " Points";
+        document.getElementById("refresh-msg").style.display = "block";
+    }
+
+    function withdrawBank() {
+        let amount = parseInt(document.getElementById("withdrawAmountBank").value);
+        if (amount >= 200000 && balance >= amount) {
+            balance -= amount;
+            localStorage.setItem("balance", balance);
+            document.getElementById("balance").innerText = balance.toLocaleString() + " Points";
+            addWithdrawalHistory(`Bank Withdrawal - ${amount.toLocaleString()} Points`);
+            alert("Withdrawal successful! Contact admin for processing.");
+        } else {
+            alert("Minimum withdrawal is 200,000 points, and you must have enough balance.");
+        }
+    }
+
+    function withdrawCrypto() {
+        let amount = parseInt(document.getElementById("withdrawAmountCrypto").value);
+        if (amount >= 500000 && balance >= amount) {
+            balance -= amount;
+            localStorage.setItem("balance", balance);
+            document.getElementById("balance").innerText = balance.toLocaleString() + " Points";
+            addWithdrawalHistory(`Crypto Withdrawal - ${amount.toLocaleString()} Points`);
+            alert("Withdrawal successful! Contact admin for processing.");
+        } else {
+            alert("Minimum withdrawal is 500,000 points, and you must have enough balance.");
+        }
+    }
+
+    function addWithdrawalHistory(entry) {
+        let history = JSON.parse(localStorage.getItem("withdrawalHistory")) || [];
+        history.unshift(entry);
+        if (history.length > 10) history.pop();
+        localStorage.setItem("withdrawalHistory", JSON.stringify(history));
+        displayHistory();
+    }
+
+    function displayHistory() {
+        let history = JSON.parse(localStorage.getItem("withdrawalHistory")) || [];
+        document.getElementById("withdrawal-history").innerHTML = history.map(item => `<li>${item}</li>`).join("");
+    }
+
+    displayHistory();
+</script>
+
+</body>
+</html>
